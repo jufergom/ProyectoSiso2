@@ -16,6 +16,8 @@ struct FileShow {
     int x;
     int y;
     bool file; //true if it represents a file, false if it represents a folder
+    int width;
+    int height;
 };
 
 vector<string> getFilesOnDirectory(string directory) {
@@ -78,9 +80,6 @@ int main() {
                 XDrawString(display, window, DefaultGC(display, s), 20, 20*(i+1), 
                         files[i].c_str(), strlen(files[i].c_str()));
             }
-            //XFillRectangle(display, window, DefaultGC(display, s), 20, 20, 10, 10);
-            //XDrawString(display, window, DefaultGC(display, s), 50, 50, msg, strlen(msg));
-
         }
         /* exit on key press */
         if (event.type == ButtonPress) {
