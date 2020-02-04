@@ -40,7 +40,7 @@ int main() {
     Display *display;
     Window window;
     XEvent event;
-    char *msg = (char *)"Hello, World!";
+    string currentDirectory = getenv("HOME");
     int s;
  
     /* open connection with the server */
@@ -68,7 +68,7 @@ int main() {
  
         /* draw or redraw the window */
         if (event.type == Expose) {
-            vector<string> files = getFilesOnDirectory("/home/julio");
+            vector<string> files = getFilesOnDirectory(currentDirectory);
             for(int i = 0; i < files.size(); i++) {
                 XFillRectangle(display, window, DefaultGC(display, s), 2, 20*(i+1)-10, 15, 10);
                 XDrawString(display, window, DefaultGC(display, s), 20, 20*(i+1), 
