@@ -7,6 +7,7 @@
 //for string and vector
 #include <string>
 #include <vector>
+#include <iostream>
 
 using namespace std;
 
@@ -55,9 +56,12 @@ int main() {
     /* create window */
     window = XCreateSimpleWindow(display, RootWindow(display, s), 10, 10, 800, 600, 1,
                            BlackPixel(display, s), WhitePixel(display, s));
+
+    XGrabPointer(display, window, false, ButtonPressMask, GrabModeAsync, 
+            GrabModeAsync, None, None, CurrentTime);
  
     /* select kind of events we are interested in */
-    XSelectInput(display, window, ExposureMask | KeyPressMask);
+    XSelectInput(display, window, ExposureMask | ButtonPressMask);
  
     /* map (show) the window */
     XMapWindow(display, window);
@@ -79,8 +83,10 @@ int main() {
 
         }
         /* exit on key press */
-        if (event.type == KeyPress)
-            break;
+        if (event.type == ButtonPress) {
+            cout << event.xbutton.x << endl;
+            cout << event.xbutton.y << endl;
+        }
     }
  
     /* close connection to server */
