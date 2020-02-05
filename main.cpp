@@ -20,19 +20,27 @@ struct FileShow {
     int height;
 };
 
-vector<string> getFilesOnDirectory(string directory) {
+vector<FileShow> getFilesOnDirectory(string directory) {
     DIR *d;
     struct dirent *dir;
-    vector<string> files;
+    vector<FileShow> files;
+    FileShow f;
+    int i = 0;
     d = opendir(directory.c_str());
     if (d) {
         while ((dir = readdir(d)) != NULL) {
             if(dir->d_name[0] != '.') {
                 //printf("%s\n", dir->d_name);
                 std::string str(dir->d_name);
-                files.push_back(str);
-            }
-                
+                f.name = str;
+                f.x = 2;
+                f.y = 20*(i+1)-10;
+                f.file = false;
+                f.width = 75;
+                f.height = 10;
+                files.push_back(f);
+                i++;
+            }  
         }
         closedir(d);
     } 
@@ -44,6 +52,7 @@ int main() {
     Window window;
     XEvent event;
     string currentDirectory = getenv("HOME");
+    string previousDirectory = currentDirectory;
     int s;
  
     /* open connection with the server */
@@ -63,7 +72,7 @@ int main() {
             GrabModeAsync, None, None, CurrentTime);
  
     /* select kind of events we are interested in */
-    XSelectInput(display, window, ExposureMask | ButtonPressMask);
+    XSelectInput(display, window, ExposureMask | ButtonPressMask | KeyPressMask);
  
     /* map (show) the window */
     XMapWindow(display, window);
@@ -71,23 +80,52 @@ int main() {
     /* event loop */
     for (;;) {
         XNextEvent(display, &event);
- 
+        vector<FileShow> files = getFilesOnDirectory(currentDirectory);
         /* draw or redraw the window */
         if (event.type == Expose) {
-            vector<string> files = getFilesOnDirectory(currentDirectory);
             for(int i = 0; i < files.size(); i++) {
                 XFillRectangle(display, window, DefaultGC(display, s), 2, 20*(i+1)-10, 15, 10);
                 XDrawString(display, window, DefaultGC(display, s), 20, 20*(i+1), 
-                        files[i].c_str(), strlen(files[i].c_str()));
+                        files[i].name.c_str(), strlen(files[i].name.c_str()));
+                cout << "What the hell" << endl;
             }
         }
-        /* exit on key press */
+        /* Click pressed */
         if (event.type == ButtonPress) {
-            cout << event.xbutton.x << endl;
-            cout << event.xbutton.y << endl;
+            //left click
+            if(event.xbutton.button == 1) {
+                for(int i = 0; i < files.size(); i++) {
+                    //collision with mouse and a file
+                    if(event.xbutton.x >= files[i].x && event.xbutton.x < files[i].x + files[i].width 
+                    && event.xbutton.y >= files[i].y && event.xbutton.y < files[i].y + files[i].height) {
+                        //cout << "Click was made on " << files[i].name << endl;
+                        previousDirectory = currentDirectory;
+                        currentDirectory += "/"+files[i].name;
+                        vector<FileShow> files = getFilesOnDirectory(currentDirectory);
+                        XClearWindow(display, window);
+                        for(int j = 0; j < files.size(); j++) {
+                            XFillRectangle(display, window, DefaultGC(display, s), 2, 20*(j+1)-10, 15, 10);
+                            XDrawString(display, window, DefaultGC(display, s), 20, 20*(j+1), 
+                                    files[j].name.c_str(), strlen(files[j].name.c_str()));
+                        }
+                    }
+                }
+            }
+            //back click
+            else if(event.xbutton.button = 8) {
+                currentDirectory = previousDirectory;
+                vector<FileShow> files = getFilesOnDirectory(currentDirectory);
+                XClearWindow(display, window);
+                for(int j = 0; j < files.size(); j++) {
+                    XFillRectangle(display, window, DefaultGC(display, s), 2, 20*(j+1)-10, 15, 10);
+                    XDrawString(display, window, DefaultGC(display, s), 20, 20*(j+1), 
+                            files[j].name.c_str(), strlen(files[j].name.c_str()));
+                }
+            }
+            //cout << event.xbutton.x << endl;
+            //cout << event.xbutton.y << endl;
         }
     }
- 
     /* close connection to server */
     XCloseDisplay(display);
  
