@@ -20,6 +20,16 @@ struct FileShow {
     int height;
 };
 
+void drawFiles(Display *display, Window *window, int s, vector<FileShow> files) {
+    for(int i = 0; i < files.size(); i++) {
+        //icon of file or directory
+        XFillRectangle(display, *window, DefaultGC(display, s), 2, 20*(i+1)-10, 15, 10);
+        //name of file or directory
+        XDrawString(display, *window, DefaultGC(display, s), 20, 20*(i+1), 
+                files[i].name.c_str(), strlen(files[i].name.c_str()));
+    }
+}
+
 struct Button {
     string text;
     int x;
@@ -91,6 +101,8 @@ int main() {
         vector<FileShow> files = getFilesOnDirectory(currentDirectory);
         /* draw or redraw the window */
         if (event.type == Expose) {
+            drawFiles(display, &window, s, files);
+            /*
             for(int i = 0; i < files.size(); i++) {
                 XFillRectangle(display, window, DefaultGC(display, s), 2, 20*(i+1)-10, 15, 10);
                 XDrawString(display, window, DefaultGC(display, s), 20, 20*(i+1), 
@@ -103,6 +115,7 @@ int main() {
                 XDrawString(display, window, DefaultGC(display, s), 305, 40, 
                         "Back", 4);
             }
+            */
         }
         /* Click pressed */
         if (event.type == ButtonPress) {
@@ -117,11 +130,14 @@ int main() {
                         currentDirectory += "/"+files[i].name;
                         vector<FileShow> files = getFilesOnDirectory(currentDirectory);
                         XClearWindow(display, window);
+                        drawFiles(display, &window, s, files);
+                        /*
                         for(int j = 0; j < files.size(); j++) {
                             XFillRectangle(display, window, DefaultGC(display, s), 2, 20*(j+1)-10, 15, 10);
                             XDrawString(display, window, DefaultGC(display, s), 20, 20*(j+1), 
                                     files[j].name.c_str(), strlen(files[j].name.c_str()));
                         }
+                        */
                     }
                 }
             }
@@ -130,14 +146,15 @@ int main() {
                 currentDirectory = previousDirectory;
                 vector<FileShow> files = getFilesOnDirectory(currentDirectory);
                 XClearWindow(display, window);
+                drawFiles(display, &window, s, files);
+                /*
                 for(int j = 0; j < files.size(); j++) {
                     XFillRectangle(display, window, DefaultGC(display, s), 2, 20*(j+1)-10, 15, 10);
                     XDrawString(display, window, DefaultGC(display, s), 20, 20*(j+1), 
                             files[j].name.c_str(), strlen(files[j].name.c_str()));
                 }
+                */
             }
-            //cout << event.xbutton.x << endl;
-            //cout << event.xbutton.y << endl;
         }
     }
     /* close connection to server */
