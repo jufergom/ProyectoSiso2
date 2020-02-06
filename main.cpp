@@ -126,7 +126,7 @@ int main() {
                 }
             }
             //back click
-            else if(event.xbutton.button = 8) {
+            else if(event.xbutton.button == 8) {
                 currentDirectory = previousDirectory;
                 vector<FileShow> files = getFilesOnDirectory(currentDirectory);
                 XClearWindow(display, window);
