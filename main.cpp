@@ -89,6 +89,14 @@ vector<FileShow> getFilesOnDirectory(string directory) {
     return files;
 }
 
+//combine the window title with the current directory
+void changeWindowTitle(Display *display, Window *window, char *title, string currentDirectory) {
+    //combine the window title with the current directory
+    strcpy(title, "Explorador de archivos: ");
+    strcat(title, currentDirectory.c_str());
+    XStoreName(display, *window, title);
+}
+
 int main() {
     Display *display;
     Window window;
@@ -96,6 +104,8 @@ int main() {
     string currentDirectory = getenv("HOME");
     string previousDirectory = currentDirectory;
     int s;
+
+    char *title; //the window title
  
     /* open connection with the server */
     display = XOpenDisplay(NULL);
@@ -108,7 +118,7 @@ int main() {
  
     /* create window */
     window = XCreateSimpleWindow(display, RootWindow(display, s), 10, 10, 800, 600, 1,
-                           BlackPixel(display, s), WhitePixel(display, s));
+            BlackPixel(display, s), WhitePixel(display, s));
 
     XGrabPointer(display, window, false, ButtonPressMask, GrabModeAsync, 
             GrabModeAsync, None, None, CurrentTime);
@@ -119,10 +129,12 @@ int main() {
     /* map (show) the window */
     XMapWindow(display, window);
 
+    changeWindowTitle(display, &window, title, currentDirectory);
+
     //create buttons and vector of buttons
     vector<Button> buttons;
     Button b;
-    b.x = 300;
+    b.x = 500;
     b.y = 20;
     b.text = "Back";
     buttons.push_back(b);
@@ -140,27 +152,42 @@ int main() {
         if (event.type == ButtonPress) {
             //left click
             if(event.xbutton.button == 1) {
+                //collision with mouse and a file
                 for(int i = 0; i < files.size(); i++) {
-                    //collision with mouse and a file
                     if(event.xbutton.x >= files[i].x && event.xbutton.x < files[i].x + files[i].width 
                     && event.xbutton.y >= files[i].y && event.xbutton.y < files[i].y + files[i].height) {
                         //modify directory variable and draw new current directory
                         previousDirectory = currentDirectory;
                         currentDirectory += "/"+files[i].name;
+                        cout << "Navigation was clicked" << endl;
+                        cout << "Previous directory: " << previousDirectory << endl;
+                        cout << "Current directory: " << currentDirectory << endl;
                         vector<FileShow> files = getFilesOnDirectory(currentDirectory);
                         XClearWindow(display, window);
                         drawFiles(display, &window, s, files);
                         drawButtons(display, &window, s, buttons);
+                        changeWindowTitle(display, &window, title, currentDirectory);
                     }
                 }
-            }
-            //back click
-            else if(event.xbutton.button == 8) {
-                currentDirectory = previousDirectory;
-                vector<FileShow> files = getFilesOnDirectory(currentDirectory);
-                XClearWindow(display, window);
-                drawFiles(display, &window, s, files);
-                drawButtons(display, &window, s, buttons);
+                //collision with mouse and button
+                for(int i = 0; i < buttons.size(); i++) {
+                    if(event.xbutton.x >= buttons[i].x && event.xbutton.x < buttons[i].x + buttons[i].width 
+                    && event.xbutton.y >= buttons[i].y 
+                    && event.xbutton.y < buttons[i].y + buttons[i].height) {
+                        //go back
+                        if(buttons[i].text == "Back") {
+                            currentDirectory = previousDirectory;
+                            cout << "Back was clicked" << endl;
+                            cout << "Previous directory: " << previousDirectory << endl;
+                            cout << "Current directory: " << currentDirectory << endl;
+                            vector<FileShow> files = getFilesOnDirectory(currentDirectory);
+                            XClearWindow(display, window);
+                            drawFiles(display, &window, s, files);
+                            drawButtons(display, &window, s, buttons);
+                            changeWindowTitle(display, &window, title, currentDirectory);
+                        }
+                    }
+                }
             }
         }
     }
