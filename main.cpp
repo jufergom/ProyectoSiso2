@@ -8,6 +8,7 @@
 #include <string>
 #include <vector>
 #include <iostream>
+#include <stack>
 
 using namespace std;
 
@@ -101,8 +102,8 @@ int main() {
     Display *display;
     Window window;
     XEvent event;
-    string currentDirectory = getenv("HOME");
-    string previousDirectory = currentDirectory;
+    stack<string> navigation; //stores all paths of navigated directories
+    navigation.push(getenv("HOME"));
     int s;
 
     char *title; //the window title
@@ -129,7 +130,7 @@ int main() {
     /* map (show) the window */
     XMapWindow(display, window);
 
-    changeWindowTitle(display, &window, title, currentDirectory);
+    changeWindowTitle(display, &window, title, navigation.top());
 
     //create buttons and vector of buttons
     vector<Button> buttons;
@@ -142,7 +143,7 @@ int main() {
     /* event loop */
     for (;;) {
         XNextEvent(display, &event);
-        vector<FileShow> files = getFilesOnDirectory(currentDirectory);
+        vector<FileShow> files = getFilesOnDirectory(navigation.top());
         /* draw or redraw the window */
         if (event.type == Expose) {
             drawFiles(display, &window, s, files);
@@ -156,17 +157,13 @@ int main() {
                 for(int i = 0; i < files.size(); i++) {
                     if(event.xbutton.x >= files[i].x && event.xbutton.x < files[i].x + files[i].width 
                     && event.xbutton.y >= files[i].y && event.xbutton.y < files[i].y + files[i].height) {
-                        //modify directory variable and draw new current directory
-                        previousDirectory = currentDirectory;
-                        currentDirectory += "/"+files[i].name;
-                        cout << "Navigation was clicked" << endl;
-                        cout << "Previous directory: " << previousDirectory << endl;
-                        cout << "Current directory: " << currentDirectory << endl;
-                        vector<FileShow> files = getFilesOnDirectory(currentDirectory);
+                        //pushes navigation to stack
+                        navigation.push(navigation.top()+"/"+files[i].name);
+                        vector<FileShow> files = getFilesOnDirectory(navigation.top());
                         XClearWindow(display, window);
                         drawFiles(display, &window, s, files);
                         drawButtons(display, &window, s, buttons);
-                        changeWindowTitle(display, &window, title, currentDirectory);
+                        changeWindowTitle(display, &window, title, navigation.top());
                     }
                 }
                 //collision with mouse and button
@@ -176,15 +173,16 @@ int main() {
                     && event.xbutton.y < buttons[i].y + buttons[i].height) {
                         //go back
                         if(buttons[i].text == "Back") {
-                            currentDirectory = previousDirectory;
-                            cout << "Back was clicked" << endl;
-                            cout << "Previous directory: " << previousDirectory << endl;
-                            cout << "Current directory: " << currentDirectory << endl;
-                            vector<FileShow> files = getFilesOnDirectory(currentDirectory);
-                            XClearWindow(display, window);
-                            drawFiles(display, &window, s, files);
-                            drawButtons(display, &window, s, buttons);
-                            changeWindowTitle(display, &window, title, currentDirectory);
+                            //make sure that we cannot go back from home
+                            if(navigation.size() > 1) {
+                                navigation.pop(); //pop current directory from navigation
+                                vector<FileShow> files = getFilesOnDirectory(navigation.top());
+                                XClearWindow(display, window);
+                                drawFiles(display, &window, s, files);
+                                drawButtons(display, &window, s, buttons);
+                                changeWindowTitle(display, &window, title, navigation.top());
+                            }
+                            
                         }
                     }
                 }
