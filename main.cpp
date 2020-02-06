@@ -38,6 +38,30 @@ struct Button {
     int height = 30;
 };
 
+void drawButtons(Display *display, Window *window, int s, vector<Button> buttons) {
+    for(int i = 0; i < buttons.size(); i++) {
+        XDrawLine(display, *window, DefaultGC(display, s), buttons[i].x, buttons[i].y, 
+                buttons[i].x, buttons[i].y + buttons[i].height); //left
+        XDrawLine(display, *window, DefaultGC(display, s),  buttons[i].x+buttons[i].width, buttons[i].y, 
+                buttons[i].x+buttons[i].width, buttons[i].y + buttons[i].height); //right
+        XDrawLine(display, *window, DefaultGC(display, s), buttons[i].x, buttons[i].y, 
+                buttons[i].x + buttons[i].width, buttons[i].y); //up
+        XDrawLine(display, *window, DefaultGC(display, s), buttons[i].x, buttons[i].y + buttons[i].height, 
+                buttons[i].x + buttons[i].width, buttons[i].y + buttons[i].height); //down
+        XDrawString(display, *window, DefaultGC(display, s), buttons[i].x + 5, buttons[i].y + 20, 
+                buttons[i].text.c_str(), strlen(buttons[i].text.c_str())); //text shown inside button
+    }
+    /*
+    XDrawLine(display, window, DefaultGC(display, s), 300, 20, 300, 50); //left
+    XDrawLine(display, window, DefaultGC(display, s), 400, 20, 400, 50); //right
+    XDrawLine(display, window, DefaultGC(display, s), 300, 20, 400, 20); //up
+    XDrawLine(display, window, DefaultGC(display, s), 300, 50, 400, 50); //down
+    XDrawString(display, window, DefaultGC(display, s), 305, 40, 
+            "Back", 4);
+    x = 300, y = 20
+    */
+}
+
 vector<FileShow> getFilesOnDirectory(string directory) {
     DIR *d;
     struct dirent *dir;
@@ -94,6 +118,14 @@ int main() {
  
     /* map (show) the window */
     XMapWindow(display, window);
+
+    //create buttons and vector of buttons
+    vector<Button> buttons;
+    Button b;
+    b.x = 300;
+    b.y = 20;
+    b.text = "Back";
+    buttons.push_back(b);
  
     /* event loop */
     for (;;) {
@@ -102,20 +134,7 @@ int main() {
         /* draw or redraw the window */
         if (event.type == Expose) {
             drawFiles(display, &window, s, files);
-            /*
-            for(int i = 0; i < files.size(); i++) {
-                XFillRectangle(display, window, DefaultGC(display, s), 2, 20*(i+1)-10, 15, 10);
-                XDrawString(display, window, DefaultGC(display, s), 20, 20*(i+1), 
-                        files[i].name.c_str(), strlen(files[i].name.c_str()));
-                //button simulation
-                XDrawLine(display, window, DefaultGC(display, s), 300, 20, 300, 50); //left
-                XDrawLine(display, window, DefaultGC(display, s), 400, 20, 400, 50); //right
-                XDrawLine(display, window, DefaultGC(display, s), 300, 20, 400, 20); //up
-                XDrawLine(display, window, DefaultGC(display, s), 300, 50, 400, 50); //down
-                XDrawString(display, window, DefaultGC(display, s), 305, 40, 
-                        "Back", 4);
-            }
-            */
+            drawButtons(display, &window, s, buttons);
         }
         /* Click pressed */
         if (event.type == ButtonPress) {
@@ -125,19 +144,13 @@ int main() {
                     //collision with mouse and a file
                     if(event.xbutton.x >= files[i].x && event.xbutton.x < files[i].x + files[i].width 
                     && event.xbutton.y >= files[i].y && event.xbutton.y < files[i].y + files[i].height) {
-                        //cout << "Click was made on " << files[i].name << endl;
+                        //modify directory variable and draw new current directory
                         previousDirectory = currentDirectory;
                         currentDirectory += "/"+files[i].name;
                         vector<FileShow> files = getFilesOnDirectory(currentDirectory);
                         XClearWindow(display, window);
                         drawFiles(display, &window, s, files);
-                        /*
-                        for(int j = 0; j < files.size(); j++) {
-                            XFillRectangle(display, window, DefaultGC(display, s), 2, 20*(j+1)-10, 15, 10);
-                            XDrawString(display, window, DefaultGC(display, s), 20, 20*(j+1), 
-                                    files[j].name.c_str(), strlen(files[j].name.c_str()));
-                        }
-                        */
+                        drawButtons(display, &window, s, buttons);
                     }
                 }
             }
@@ -147,13 +160,7 @@ int main() {
                 vector<FileShow> files = getFilesOnDirectory(currentDirectory);
                 XClearWindow(display, window);
                 drawFiles(display, &window, s, files);
-                /*
-                for(int j = 0; j < files.size(); j++) {
-                    XFillRectangle(display, window, DefaultGC(display, s), 2, 20*(j+1)-10, 15, 10);
-                    XDrawString(display, window, DefaultGC(display, s), 20, 20*(j+1), 
-                            files[j].name.c_str(), strlen(files[j].name.c_str()));
-                }
-                */
+                drawButtons(display, &window, s, buttons);
             }
         }
     }
