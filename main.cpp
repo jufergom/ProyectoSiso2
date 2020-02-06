@@ -20,6 +20,14 @@ struct FileShow {
     int height;
 };
 
+struct Button {
+    string text;
+    int x;
+    int y;
+    int width = 100;
+    int height = 30;
+};
+
 vector<FileShow> getFilesOnDirectory(string directory) {
     DIR *d;
     struct dirent *dir;
@@ -87,7 +95,13 @@ int main() {
                 XFillRectangle(display, window, DefaultGC(display, s), 2, 20*(i+1)-10, 15, 10);
                 XDrawString(display, window, DefaultGC(display, s), 20, 20*(i+1), 
                         files[i].name.c_str(), strlen(files[i].name.c_str()));
-                cout << "What the hell" << endl;
+                //button simulation
+                XDrawLine(display, window, DefaultGC(display, s), 300, 20, 300, 50); //left
+                XDrawLine(display, window, DefaultGC(display, s), 400, 20, 400, 50); //right
+                XDrawLine(display, window, DefaultGC(display, s), 300, 20, 400, 20); //up
+                XDrawLine(display, window, DefaultGC(display, s), 300, 50, 400, 50); //down
+                XDrawString(display, window, DefaultGC(display, s), 305, 40, 
+                        "Back", 4);
             }
         }
         /* Click pressed */
