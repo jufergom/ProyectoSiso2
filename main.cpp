@@ -16,7 +16,7 @@ struct FileShow {
     string name;
     int x;
     int y;
-    bool file; //true if it represents a file, false if it represents a folder
+    unsigned int type; //4 for directory, 8 for file
     int width;
     int height;
 };
@@ -75,10 +75,10 @@ vector<FileShow> getFilesOnDirectory(string directory) {
             if(dir->d_name[0] != '.') {
                 //printf("%s\n", dir->d_name);
                 std::string str(dir->d_name);
+                f.type = static_cast<unsigned>(dir->d_type);
                 f.name = str;
                 f.x = 2;
                 f.y = 20*(i+1)-10;
-                f.file = false;
                 f.width = 75;
                 f.height = 10;
                 files.push_back(f);
@@ -106,7 +106,7 @@ int main() {
     navigation.push(getenv("HOME"));
     int s;
 
-    char *title; //the window title
+    char *title = new char(); //the window title
  
     /* open connection with the server */
     display = XOpenDisplay(NULL);
@@ -126,10 +126,10 @@ int main() {
  
     /* select kind of events we are interested in */
     XSelectInput(display, window, ExposureMask | ButtonPressMask | KeyPressMask);
- 
+    
     /* map (show) the window */
     XMapWindow(display, window);
-
+    
     changeWindowTitle(display, &window, title, navigation.top());
 
     //create buttons and vector of buttons
@@ -191,6 +191,6 @@ int main() {
     }
     /* close connection to server */
     XCloseDisplay(display);
- 
+
     return 0;
 }
