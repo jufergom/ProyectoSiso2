@@ -162,13 +162,22 @@ int main() {
                 for(int i = 0; i < files.size(); i++) {
                     if(event.xbutton.x >= files[i].x && event.xbutton.x < files[i].x + files[i].width 
                     && event.xbutton.y >= files[i].y && event.xbutton.y < files[i].y + files[i].height) {
-                        //pushes navigation to stack
-                        navigation.push(navigation.top()+"/"+files[i].name);
-                        vector<FileShow> files = getFilesOnDirectory(navigation.top());
-                        XClearWindow(display, window);
-                        drawFiles(display, &window, s, files);
-                        drawButtons(display, &window, s, buttons);
-                        changeWindowTitle(display, &window, title, navigation.top());
+                        //if collision is made with a folder
+                        if(files[i].type == 4) {
+                            //pushes navigation to stack
+                            navigation.push(navigation.top()+"/"+files[i].name);
+                            vector<FileShow> files = getFilesOnDirectory(navigation.top());
+                            XClearWindow(display, window);
+                            drawFiles(display, &window, s, files);
+                            drawButtons(display, &window, s, buttons);
+                            changeWindowTitle(display, &window, title, navigation.top());
+                        }
+                        //if collision is made with a file
+                        else if(files[i].type == 8) {
+                            cout << "i am going to open a file" << endl;
+                            string command = "xdg-open "+navigation.top()+"/"+files[i].name;
+                            system(command.c_str()); //open file
+                        }
                     }
                 }
                 //collision with mouse and button
