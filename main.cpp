@@ -9,99 +9,16 @@
 #include <vector>
 #include <iostream>
 #include <stack>
+#include "Button.h"
+#include "FileShow.h"
 
 using namespace std;
 
-struct FileShow {
-    string name;
-    int x;
-    int y;
-    unsigned int type; //4 for folder, 8 for file
-    int width;
-    int height;
-};
-
-void drawFiles(Display *display, Window *window, int s, vector<FileShow> files) {
-    for(int i = 0; i < files.size(); i++) {
-        //folder
-        if(files[i].type == 4) {
-            XFillRectangle(display, *window, DefaultGC(display, s), 2, 20*(i+1)-10, 15, 10);
-        }
-        else {
-            XFillRectangle(display, *window, DefaultGC(display, s), 2, 20*(i+1)-10, 15, 5);
-        }
-        //name of file or directory
-        XDrawString(display, *window, DefaultGC(display, s), 20, 20*(i+1), 
-                files[i].name.c_str(), strlen(files[i].name.c_str()));
-    }
-}
-
-struct Button {
-    string text;
-    int x;
-    int y;
-    int width = 100;
-    int height = 30;
-};
-
-void drawButtons(Display *display, Window *window, int s, vector<Button> buttons) {
-    for(int i = 0; i < buttons.size(); i++) {
-        XDrawLine(display, *window, DefaultGC(display, s), buttons[i].x, buttons[i].y, 
-                buttons[i].x, buttons[i].y + buttons[i].height); //left
-        XDrawLine(display, *window, DefaultGC(display, s),  buttons[i].x+buttons[i].width, buttons[i].y, 
-                buttons[i].x+buttons[i].width, buttons[i].y + buttons[i].height); //right
-        XDrawLine(display, *window, DefaultGC(display, s), buttons[i].x, buttons[i].y, 
-                buttons[i].x + buttons[i].width, buttons[i].y); //up
-        XDrawLine(display, *window, DefaultGC(display, s), buttons[i].x, buttons[i].y + buttons[i].height, 
-                buttons[i].x + buttons[i].width, buttons[i].y + buttons[i].height); //down
-        XDrawString(display, *window, DefaultGC(display, s), buttons[i].x + 5, buttons[i].y + 20, 
-                buttons[i].text.c_str(), strlen(buttons[i].text.c_str())); //text shown inside button
-    }
-    /*
-    XDrawLine(display, window, DefaultGC(display, s), 300, 20, 300, 50); //left
-    XDrawLine(display, window, DefaultGC(display, s), 400, 20, 400, 50); //right
-    XDrawLine(display, window, DefaultGC(display, s), 300, 20, 400, 20); //up
-    XDrawLine(display, window, DefaultGC(display, s), 300, 50, 400, 50); //down
-    XDrawString(display, window, DefaultGC(display, s), 305, 40, 
-            "Back", 4);
-    x = 300, y = 20
-    */
-}
-
-vector<FileShow> getFilesOnDirectory(string directory) {
-    DIR *d;
-    struct dirent *dir;
-    vector<FileShow> files;
-    FileShow f;
-    int i = 0;
-    d = opendir(directory.c_str());
-    if (d) {
-        while ((dir = readdir(d)) != NULL) {
-            if(dir->d_name[0] != '.') {
-                //printf("%s\n", dir->d_name);
-                std::string str(dir->d_name);
-                f.type = static_cast<unsigned>(dir->d_type);
-                f.name = str;
-                f.x = 2;
-                f.y = 20*(i+1)-10;
-                f.width = 75;
-                f.height = 10;
-                files.push_back(f);
-                i++;
-            }  
-        }
-        closedir(d);
-    } 
-    return files;
-}
-
+void drawFiles(Display *display, Window *window, int s, vector<FileShow> files);
+void drawButtons(Display *display, Window *window, int s, vector<Button> buttons);
+vector<FileShow> getFilesOnDirectory(string directory);
 //combine the window title with the current directory
-void changeWindowTitle(Display *display, Window *window, char *title, string currentDirectory) {
-    //combine the window title with the current directory
-    strcpy(title, "Explorador de archivos: ");
-    strcat(title, currentDirectory.c_str());
-    XStoreName(display, *window, title);
-}
+void changeWindowTitle(Display *display, Window *window, char *title, string currentDirectory);
 
 int main() {
     Display *display;
@@ -174,7 +91,6 @@ int main() {
                         }
                         //if collision is made with a file
                         else if(files[i].type == 8) {
-                            cout << "i am going to open a file" << endl;
                             string command = "xdg-open "+navigation.top()+"/"+files[i].name;
                             system(command.c_str()); //open file
                         }
@@ -207,4 +123,69 @@ int main() {
     XCloseDisplay(display);
 
     return 0;
+}
+
+void drawFiles(Display *display, Window *window, int s, vector<FileShow> files) {
+    for(int i = 0; i < files.size(); i++) {
+        //folder
+        if(files[i].type == 4) {
+            XFillRectangle(display, *window, DefaultGC(display, s), 2, 20*(i+1)-10, 15, 10);
+        }
+        else {
+            XFillRectangle(display, *window, DefaultGC(display, s), 2, 20*(i+1)-10, 15, 5);
+        }
+        //name of file or directory
+        XDrawString(display, *window, DefaultGC(display, s), 20, 20*(i+1), 
+                files[i].name.c_str(), strlen(files[i].name.c_str()));
+    }
+}
+
+void drawButtons(Display *display, Window *window, int s, vector<Button> buttons) {
+    for(int i = 0; i < buttons.size(); i++) {
+        XDrawLine(display, *window, DefaultGC(display, s), buttons[i].x, buttons[i].y, 
+                buttons[i].x, buttons[i].y + buttons[i].height); //left
+        XDrawLine(display, *window, DefaultGC(display, s),  buttons[i].x+buttons[i].width, buttons[i].y, 
+                buttons[i].x+buttons[i].width, buttons[i].y + buttons[i].height); //right
+        XDrawLine(display, *window, DefaultGC(display, s), buttons[i].x, buttons[i].y, 
+                buttons[i].x + buttons[i].width, buttons[i].y); //up
+        XDrawLine(display, *window, DefaultGC(display, s), buttons[i].x, buttons[i].y + buttons[i].height, 
+                buttons[i].x + buttons[i].width, buttons[i].y + buttons[i].height); //down
+        XDrawString(display, *window, DefaultGC(display, s), buttons[i].x + 5, buttons[i].y + 20, 
+                buttons[i].text.c_str(), strlen(buttons[i].text.c_str())); //text shown inside button
+    }
+}
+
+vector<FileShow> getFilesOnDirectory(string directory) {
+    DIR *d;
+    struct dirent *dir;
+    vector<FileShow> files;
+    FileShow f;
+    int i = 0;
+    d = opendir(directory.c_str());
+    if (d) {
+        while ((dir = readdir(d)) != NULL) {
+            if(dir->d_name[0] != '.') {
+                //printf("%s\n", dir->d_name);
+                std::string str(dir->d_name);
+                f.type = static_cast<unsigned>(dir->d_type);
+                f.name = str;
+                f.x = 2;
+                f.y = 20*(i+1)-10;
+                f.width = 75;
+                f.height = 10;
+                files.push_back(f);
+                i++;
+            }  
+        }
+        closedir(d);
+    } 
+    return files;
+}
+
+//combine the window title with the current directory
+void changeWindowTitle(Display *display, Window *window, char *title, string currentDirectory) {
+    //combine the window title with the current directory
+    strcpy(title, "Explorador de archivos: ");
+    strcat(title, currentDirectory.c_str());
+    XStoreName(display, *window, title);
 }
