@@ -16,15 +16,20 @@ struct FileShow {
     string name;
     int x;
     int y;
-    unsigned int type; //4 for directory, 8 for file
+    unsigned int type; //4 for folder, 8 for file
     int width;
     int height;
 };
 
 void drawFiles(Display *display, Window *window, int s, vector<FileShow> files) {
     for(int i = 0; i < files.size(); i++) {
-        //icon of file or directory
-        XFillRectangle(display, *window, DefaultGC(display, s), 2, 20*(i+1)-10, 15, 10);
+        //folder
+        if(files[i].type == 4) {
+            XFillRectangle(display, *window, DefaultGC(display, s), 2, 20*(i+1)-10, 15, 10);
+        }
+        else {
+            XFillRectangle(display, *window, DefaultGC(display, s), 2, 20*(i+1)-10, 15, 5);
+        }
         //name of file or directory
         XDrawString(display, *window, DefaultGC(display, s), 20, 20*(i+1), 
                 files[i].name.c_str(), strlen(files[i].name.c_str()));
@@ -129,7 +134,7 @@ int main() {
     
     /* map (show) the window */
     XMapWindow(display, window);
-    
+
     changeWindowTitle(display, &window, title, navigation.top());
 
     //create buttons and vector of buttons
