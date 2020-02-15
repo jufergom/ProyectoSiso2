@@ -64,11 +64,20 @@ int main() {
 
     //create buttons and vector of buttons
     vector<Button> buttons;
-    Button b;
-    b.x = 500;
-    b.y = 60;
-    b.text = "Back";
-    buttons.push_back(b);
+    Button b1, b2, b3;
+    b1.x = 500;
+    b1.y = 60;
+    b1.text = "Back";
+    buttons.push_back(b1);
+    b2.x = 500;
+    b2.y = 100;
+    b2.text = "Nueva carpeta";
+    buttons.push_back(b2);
+    b3.x = 500;
+    b3.y = 140;
+    b3.text = "Nuevo archivo";
+    buttons.push_back(b1);
+    
  
     /* event loop */
     for (;;) {
