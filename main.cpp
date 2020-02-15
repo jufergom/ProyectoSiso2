@@ -19,6 +19,7 @@ using namespace std;
 
 void drawFiles(Display *display, Window *window, int s, vector<FileShow> files);
 void drawButtons(Display *display, Window *window, int s, vector<Button> buttons);
+void drawInput(Display *display, Window *window, int s);
 vector<FileShow> getFilesOnDirectory(string directory);
 //combine the window title with the current directory
 void changeWindowTitle(Display *display, Window *window, char *title, string currentDirectory);
@@ -65,7 +66,7 @@ int main() {
     vector<Button> buttons;
     Button b;
     b.x = 500;
-    b.y = 20;
+    b.y = 60;
     b.text = "Back";
     buttons.push_back(b);
  
@@ -78,8 +79,7 @@ int main() {
         if (event.type == Expose) {
             drawFiles(display, &window, s, files);
             drawButtons(display, &window, s, buttons);
-            XDrawString(display, window, DefaultGC(display, s), 500, 100, 
-                textInput.c_str(), strlen(textInput.c_str())); 
+            drawInput(display, &window, s);
         }
         /* Click pressed */
         if (event.type == ButtonPress) {
@@ -97,6 +97,7 @@ int main() {
                             XClearWindow(display, window);
                             drawFiles(display, &window, s, files);
                             drawButtons(display, &window, s, buttons);
+                            drawInput(display, &window, s);
                             changeWindowTitle(display, &window, title, navigation.top());
                         }
                         //if collision is made with a file
@@ -120,6 +121,7 @@ int main() {
                                 XClearWindow(display, window);
                                 drawFiles(display, &window, s, files);
                                 drawButtons(display, &window, s, buttons);
+                                drawInput(display, &window, s);
                                 changeWindowTitle(display, &window, title, navigation.top());
                             }
                             
@@ -132,8 +134,7 @@ int main() {
             XClearWindow(display, window);
             drawFiles(display, &window, s, files);
             drawButtons(display, &window, s, buttons);
-            XDrawString(display, window, DefaultGC(display, s), 500, 100, 
-                textInput.c_str(), strlen(textInput.c_str())); 
+            drawInput(display, &window, s);
         }
     }
     /* close connection to server */
@@ -170,6 +171,12 @@ void drawButtons(Display *display, Window *window, int s, vector<Button> buttons
         XDrawString(display, *window, DefaultGC(display, s), buttons[i].x + 5, buttons[i].y + 20, 
                 buttons[i].text.c_str(), strlen(buttons[i].text.c_str())); //text shown inside button
     }
+}
+
+void drawInput(Display *display, Window *window, int s) {
+    XDrawString(display, *window, DefaultGC(display, s), 500, 20, 
+            textInput.c_str(), strlen(textInput.c_str())); 
+    XDrawLine(display, *window, DefaultGC(display, s), 500, 25, 700, 25);
 }
 
 vector<FileShow> getFilesOnDirectory(string directory) {
