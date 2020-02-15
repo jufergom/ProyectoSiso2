@@ -6,7 +6,8 @@ FileOperator::FileOperator() {
 
 void FileOperator::createFile(std::string fileName) {
     int fd;
-    fd = open(fileName.c_str(), O_CREAT | O_WRONLY,S_IRUSR); //creates file
+    mode_t mode = S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH;
+    fd = creat(fileName.c_str(), mode);
     close(fd);
 }
 

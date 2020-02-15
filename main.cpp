@@ -14,6 +14,7 @@
 #include <stack>
 #include "Button.h"
 #include "FileShow.h"
+#include "FileOperator.h"
 
 using namespace std;
 
@@ -35,6 +36,7 @@ int main() {
     stack<string> navigation; //stores all paths of navigated directories
     navigation.push(getenv("HOME"));
     int s;
+    FileOperator fo; //create, read, write files and folders
 
     char *title = new char(); //the window title
  
@@ -76,7 +78,7 @@ int main() {
     b3.x = 500;
     b3.y = 140;
     b3.text = "Nuevo archivo";
-    buttons.push_back(b1);
+    buttons.push_back(b3);
     
  
     /* event loop */
@@ -122,7 +124,7 @@ int main() {
                     && event.xbutton.y >= buttons[i].y 
                     && event.xbutton.y < buttons[i].y + buttons[i].height) {
                         //go back
-                        if(buttons[i].text == "Back") {
+                        if(i == 0) {
                             //make sure that we cannot go back from home
                             if(navigation.size() > 1) {
                                 navigation.pop(); //pop current directory from navigation
@@ -133,7 +135,26 @@ int main() {
                                 drawInput(display, &window, s);
                                 changeWindowTitle(display, &window, title, navigation.top());
                             }
-                            
+                        }
+                        //make directory
+                        else if(i == 1) {
+                            fo.makeDirectory(navigation.top()+"/"+textInput);
+                            textInput = "";
+                            vector<FileShow> files = getFilesOnDirectory(navigation.top());
+                            XClearWindow(display, window);
+                            drawFiles(display, &window, s, files);
+                            drawButtons(display, &window, s, buttons);
+                            drawInput(display, &window, s);
+                        }
+                        //new file
+                        else if(i == 2) {
+                            fo.createFile(navigation.top()+"/"+textInput);
+                            textInput = "";
+                            vector<FileShow> files = getFilesOnDirectory(navigation.top());
+                            XClearWindow(display, window);
+                            drawFiles(display, &window, s, files);
+                            drawButtons(display, &window, s, buttons);
+                            drawInput(display, &window, s);
                         }
                     }
                 }
