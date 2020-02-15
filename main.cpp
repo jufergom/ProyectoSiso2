@@ -1,4 +1,7 @@
 #include <X11/Xlib.h>
+#include <X11/XKBlib.h>
+#include <X11/Xutil.h>
+#include <X11/Xresource.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -19,6 +22,28 @@ void drawButtons(Display *display, Window *window, int s, vector<Button> buttons
 vector<FileShow> getFilesOnDirectory(string directory);
 //combine the window title with the current directory
 void changeWindowTitle(Display *display, Window *window, char *title, string currentDirectory);
+
+string textInput;
+
+void setxtextInput(XEvent e, Display *dpy) {
+    cout << textInput << endl;
+    if(e.type == KeyPress) {
+        KeySym id = XkbKeycodeToKeysym(dpy,e.xkey.keycode,0,
+            e.xkey.state & ShiftMask ? 1 : 0);
+        char stringData[1];
+        XComposeStatus x;
+        XLookupString(&e.xkey,stringData, 1, &id, &x);
+        if(id == 65288) {
+            if(textInput.size()>0){
+                textInput = textInput.substr(0, textInput.size()-1);
+            }
+        }
+        else {
+            textInput = textInput + stringData;
+        }
+    }
+}
+
 
 int main() {
     Display *display;
@@ -65,11 +90,14 @@ int main() {
     /* event loop */
     for (;;) {
         XNextEvent(display, &event);
+        setxtextInput(event, display);
         vector<FileShow> files = getFilesOnDirectory(navigation.top());
         /* draw or redraw the window */
         if (event.type == Expose) {
             drawFiles(display, &window, s, files);
             drawButtons(display, &window, s, buttons);
+            XDrawString(display, window, DefaultGC(display, s), 500, 100, 
+                textInput.c_str(), strlen(textInput.c_str())); 
         }
         /* Click pressed */
         if (event.type == ButtonPress) {
@@ -117,6 +145,13 @@ int main() {
                     }
                 }
             }
+        }
+        else if(event.type == KeyPress) {
+            XClearWindow(display, window);
+            drawFiles(display, &window, s, files);
+            drawButtons(display, &window, s, buttons);
+            XDrawString(display, window, DefaultGC(display, s), 500, 100, 
+                textInput.c_str(), strlen(textInput.c_str())); 
         }
     }
     /* close connection to server */
