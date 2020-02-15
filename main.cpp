@@ -22,28 +22,10 @@ void drawButtons(Display *display, Window *window, int s, vector<Button> buttons
 vector<FileShow> getFilesOnDirectory(string directory);
 //combine the window title with the current directory
 void changeWindowTitle(Display *display, Window *window, char *title, string currentDirectory);
+//change input text
+void changeTextInput(XEvent event, Display *display);
 
 string textInput;
-
-void setxtextInput(XEvent e, Display *dpy) {
-    cout << textInput << endl;
-    if(e.type == KeyPress) {
-        KeySym id = XkbKeycodeToKeysym(dpy,e.xkey.keycode,0,
-            e.xkey.state & ShiftMask ? 1 : 0);
-        char stringData[1];
-        XComposeStatus x;
-        XLookupString(&e.xkey,stringData, 1, &id, &x);
-        if(id == 65288) {
-            if(textInput.size()>0){
-                textInput = textInput.substr(0, textInput.size()-1);
-            }
-        }
-        else {
-            textInput = textInput + stringData;
-        }
-    }
-}
-
 
 int main() {
     Display *display;
@@ -90,7 +72,7 @@ int main() {
     /* event loop */
     for (;;) {
         XNextEvent(display, &event);
-        setxtextInput(event, display);
+        changeTextInput(event, display);
         vector<FileShow> files = getFilesOnDirectory(navigation.top());
         /* draw or redraw the window */
         if (event.type == Expose) {
@@ -223,4 +205,22 @@ void changeWindowTitle(Display *display, Window *window, char *title, string cur
     strcpy(title, "Explorador de archivos: ");
     strcat(title, currentDirectory.c_str());
     XStoreName(display, *window, title);
+}
+
+void changeTextInput(XEvent event, Display *display) {
+    if(event.type == KeyPress) {
+        KeySym id = XkbKeycodeToKeysym(display, event.xkey.keycode, 0,
+            event.xkey.state & ShiftMask ? 1 : 0);
+        char stringData[1];
+        XComposeStatus x;
+        XLookupString(&event.xkey,stringData, 1, &id, &x);
+        if(id == 65288) {
+            if(textInput.size()>0){
+                textInput = textInput.substr(0, textInput.size()-1);
+            }
+        }
+        else {
+            textInput = textInput + stringData;
+        }
+    }
 }
