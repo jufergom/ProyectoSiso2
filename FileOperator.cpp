@@ -14,3 +14,7 @@ void FileOperator::createFile(std::string fileName) {
 void FileOperator::makeDirectory(std::string directoryName) {
     mkdir(directoryName.c_str(), S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
 }
+
+int FileOperator::removeFile(std::string fileName) {
+    return remove(fileName.c_str());
+}

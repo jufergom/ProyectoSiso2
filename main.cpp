@@ -66,7 +66,7 @@ int main() {
 
     //create buttons and vector of buttons
     vector<Button> buttons;
-    Button b1, b2, b3;
+    Button b1, b2, b3, b4;
     b1.x = 500;
     b1.y = 60;
     b1.text = "Back";
@@ -79,6 +79,13 @@ int main() {
     b3.y = 140;
     b3.text = "Nuevo archivo";
     buttons.push_back(b3);
+    b4.x = 500;
+    b4.y = 180;
+    b4.text = "Borrar";
+    buttons.push_back(b4);
+
+    //path of selected file or folder, selection made with right click
+    string selectedFile = "";
     
  
     /* event loop */
@@ -94,6 +101,7 @@ int main() {
         }
         /* Click pressed */
         if (event.type == ButtonPress) {
+            cout << event.xbutton.button << endl;
             //left click
             if(event.xbutton.button == 1) {
                 //collision with mouse and a file
@@ -156,6 +164,26 @@ int main() {
                             drawButtons(display, &window, s, buttons);
                             drawInput(display, &window, s);
                         }
+                        //delete file
+                        else if(i == 3) {
+                            fo.removeFile(selectedFile);
+                            selectedFile = "";
+                            vector<FileShow> files = getFilesOnDirectory(navigation.top());
+                            XClearWindow(display, window);
+                            drawFiles(display, &window, s, files);
+                            drawButtons(display, &window, s, buttons);
+                            drawInput(display, &window, s);
+                        }
+                    }
+                }
+            }
+            //right click, used to select files or folders
+            else if(event.xbutton.button == 3) {
+                //collision with mouse and a file
+                for(int i = 0; i < files.size(); i++) {
+                    if(event.xbutton.x >= files[i].x && event.xbutton.x < files[i].x + files[i].width 
+                    && event.xbutton.y >= files[i].y && event.xbutton.y < files[i].y + files[i].height) {
+                        selectedFile = navigation.top()+"/"+files[i].name;
                     }
                 }
             }

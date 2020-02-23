@@ -6,6 +6,7 @@
 #include <sys/stat.h>
 #include <fcntl.h>
 #include <unistd.h>
+#include <stdio.h>
 
 class FileOperator {
 public:
@@ -13,6 +14,7 @@ public:
 
     void makeDirectory(std::string directoryName);
     void createFile(std::string fileName);
+    int removeFile(std::string fileName);
 };
 
 #endif
