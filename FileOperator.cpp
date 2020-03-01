@@ -60,10 +60,10 @@ void FileOperator::copyFile(std::string copyFrom, std::string copyTo) {
 }
 
 void FileOperator::copyRecursive(const fs::path& src, const fs::path& target) noexcept {
-        try {
-            fs::copy(src, target, fs::copy_options::overwrite_existing | fs::copy_options::recursive);
-        }
-        catch (std::exception& e) {
-            std::cout << e.what();
-        }
+    try {
+        fs::copy(src, target, fs::copy_options::overwrite_existing | fs::copy_options::recursive);
     }
+    catch (std::exception& e) {
+        std::cout << e.what();
+    }
+}
