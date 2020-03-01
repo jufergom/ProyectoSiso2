@@ -7,7 +7,11 @@
 #include <fcntl.h>
 #include <unistd.h>
 #include <stdio.h>
+#include <iostream>
+#include <experimental/filesystem>
 #include "File.h"
+
+namespace fs = std::experimental::filesystem;
 
 class FileOperator {
 private:
@@ -20,6 +24,8 @@ public:
     void createFile(std::string fileName);
     int removeFile(std::string fileName);
     void copyFile(std::string copyFrom, std::string copyTo);
+    // Recursively copies all files and folders from src to target and overwrites existing files in target.
+    void copyRecursive(const fs::path& src, const fs::path& target) noexcept;
 };
 
 #endif

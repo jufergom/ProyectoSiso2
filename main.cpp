@@ -66,7 +66,7 @@ int main() {
 
     //create buttons and vector of buttons
     vector<Button> buttons;
-    Button b1, b2, b3, b4;
+    Button b1, b2, b3, b4, b5;
     b1.x = 500;
     b1.y = 60;
     b1.text = "Back";
@@ -83,10 +83,15 @@ int main() {
     b4.y = 180;
     b4.text = "Borrar";
     buttons.push_back(b4);
+    b5.x = 500;
+    b5.y = 220;
+    b5.text = "Copiar";
+    buttons.push_back(b5);
 
     //path of selected file or folder, selection made with right click
     string selectedFile = "";
-    
+    string selectedFileRelative = ""; //relative path of selected file
+    unsigned int selectedFileType = 0; //4 folder, 8 file
  
     /* event loop */
     for (;;) {
@@ -168,6 +173,27 @@ int main() {
                         else if(i == 3) {
                             fo.removeFile(selectedFile);
                             selectedFile = "";
+                            selectedFileRelative = "";
+                            selectedFileType = 0;
+                            vector<FileShow> files = getFilesOnDirectory(navigation.top());
+                            XClearWindow(display, window);
+                            drawFiles(display, &window, s, files);
+                            drawButtons(display, &window, s, buttons);
+                            drawInput(display, &window, s);
+                        }
+                        //copy file
+                        else if(i == 4) {
+                            //folder copy
+                            if(selectedFileType == 4) {
+                                fo.copyRecursive(selectedFile, navigation.top()+"/"+selectedFileRelative+"-copy");
+                            }
+                            //file copy
+                            else {
+                                fo.copyFile(selectedFile, navigation.top()+"/"+selectedFileRelative+"-copy");
+                            }
+                            selectedFile = "";
+                            selectedFileRelative = "";
+                            selectedFileType = 0;
                             vector<FileShow> files = getFilesOnDirectory(navigation.top());
                             XClearWindow(display, window);
                             drawFiles(display, &window, s, files);
@@ -184,6 +210,8 @@ int main() {
                     if(event.xbutton.x >= files[i].x && event.xbutton.x < files[i].x + files[i].width 
                     && event.xbutton.y >= files[i].y && event.xbutton.y < files[i].y + files[i].height) {
                         selectedFile = navigation.top()+"/"+files[i].name;
+                        selectedFileRelative = files[i].name;
+                        selectedFileType = files[i].type;
                     }
                 }
             }
