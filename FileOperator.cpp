@@ -18,3 +18,43 @@ void FileOperator::makeDirectory(std::string directoryName) {
 int FileOperator::removeFile(std::string fileName) {
     return remove(fileName.c_str());
 }
+
+File FileOperator::readFile(std::string fileName) {
+    int fd = -1;
+    ssize_t bytes_read = -1;
+    File f;
+    fd = open(fileName.c_str(), O_RDONLY);
+    
+    if(fd == -1) {
+        //open failed
+        f.size = 0;
+        return f;
+    }
+    // Get size.
+    off_t size = lseek(fd, 0, SEEK_END); // You should check for an error return in real code
+    // Seek back to the beginning.
+    lseek(fd, 0, SEEK_SET);
+    // Allocate enough to hold the whole contents plus a '\0' char.
+    f.buffer = new char[size + 1];
+
+    bytes_read = read(fd, f.buffer, size); 
+    f.size = size;
+
+    close(fd);
+    return f;
+}
+
+void FileOperator::writeFile(std::string fileName, File f) {
+    int fd;
+    fd = open(fileName.c_str(), O_CREAT | O_WRONLY,S_IRUSR); //creates file
+    
+    write(fd, f.buffer, f.size);
+    close(fd);
+}
+
+void FileOperator::copyFile(std::string copyFrom, std::string copyTo) {
+    File f;
+    f = readFile(copyFrom);
+    if(f.size != -1) 
+        writeFile(copyTo, f);
+}
