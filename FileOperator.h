@@ -26,6 +26,8 @@ public:
     void copyFile(std::string copyFrom, std::string copyTo);
     // Recursively copies all files and folders from src to target and overwrites existing files in target.
     void copyRecursive(const fs::path& src, const fs::path& target) noexcept;
+    void moveFile(std::string moveFrom, std::string moveTo);
+    void moveFolder(std::string moveFrom, std::string moveTo);
 };
 
 #endif

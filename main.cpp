@@ -66,7 +66,7 @@ int main() {
 
     //create buttons and vector of buttons
     vector<Button> buttons;
-    Button b1, b2, b3, b4, b5;
+    Button b1, b2, b3, b4, b5, b6;
     b1.x = 500;
     b1.y = 60;
     b1.text = "Back";
@@ -85,8 +85,12 @@ int main() {
     buttons.push_back(b4);
     b5.x = 500;
     b5.y = 220;
-    b5.text = "Copiar";
+    b5.text = "Pegar";
     buttons.push_back(b5);
+    b6.x = 500;
+    b6.y = 260;
+    b6.text = "Mover";
+    buttons.push_back(b6);
 
     //path of selected file or folder, selection made with right click
     string selectedFile = "";
@@ -190,6 +194,25 @@ int main() {
                             //file copy
                             else {
                                 fo.copyFile(selectedFile, navigation.top()+"/"+selectedFileRelative+"-copy");
+                            }
+                            selectedFile = "";
+                            selectedFileRelative = "";
+                            selectedFileType = 0;
+                            vector<FileShow> files = getFilesOnDirectory(navigation.top());
+                            XClearWindow(display, window);
+                            drawFiles(display, &window, s, files);
+                            drawButtons(display, &window, s, buttons);
+                            drawInput(display, &window, s);
+                        }
+                        //move file
+                        else if(i == 5) {
+                            //move folder
+                            if(selectedFileType == 4) {
+                                fo.moveFolder(selectedFile, navigation.top()+"/"+selectedFileRelative);
+                            }
+                            //move file
+                            else {
+                                fo.moveFile(selectedFile, navigation.top()+"/"+selectedFileRelative);
                             }
                             selectedFile = "";
                             selectedFileRelative = "";

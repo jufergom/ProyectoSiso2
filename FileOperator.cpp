@@ -67,3 +67,11 @@ void FileOperator::copyRecursive(const fs::path& src, const fs::path& target) no
         std::cout << e.what();
     }
 }
+
+void FileOperator::moveFile(std::string moveFrom, std::string moveTo) {
+    rename(moveFrom.c_str(), moveTo.c_str());
+}
+
+void FileOperator::moveFolder(std::string moveFrom, std::string moveTo) {
+    fs::rename(moveFrom, moveTo);
+}
