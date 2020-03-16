@@ -75,3 +75,11 @@ void FileOperator::moveFile(std::string moveFrom, std::string moveTo) {
 void FileOperator::moveFolder(std::string moveFrom, std::string moveTo) {
     fs::rename(moveFrom, moveTo);
 }
+
+void FileOperator::createSymLink(std::string from, std::string to) {
+    symlink(from.c_str(), to.c_str());
+}
+
+void FileOperator::createHardLink(std::string from, std::string to) {
+    link(from.c_str(), to.c_str());
+}

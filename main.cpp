@@ -66,7 +66,7 @@ int main() {
 
     //create buttons and vector of buttons
     vector<Button> buttons;
-    Button b1, b2, b3, b4, b5, b6;
+    Button b1, b2, b3, b4, b5, b6, b7, b8;
     b1.x = 500;
     b1.y = 60;
     b1.text = "Back";
@@ -91,6 +91,14 @@ int main() {
     b6.y = 260;
     b6.text = "Mover";
     buttons.push_back(b6);
+    b7.x = 500;
+    b7.y = 300;
+    b7.text = "Symbolic Link";
+    buttons.push_back(b7);
+    b8.x = 500;
+    b8.y = 340;
+    b8.text = "Hard Link";
+    buttons.push_back(b8);
 
     //path of selected file or folder, selection made with right click
     string selectedFile = "";
@@ -128,8 +136,8 @@ int main() {
                             drawInput(display, &window, s);
                             changeWindowTitle(display, &window, title, navigation.top());
                         }
-                        //if collision is made with a file
-                        else if(files[i].type == 8) {
+                        //if collision is made with a file OR symbolic link
+                        else if(files[i].type == 8 || files[i].type == 10) {
                             string command = "xdg-open "+navigation.top()+"/"+files[i].name;
                             system(command.c_str()); //open file
                         }
@@ -216,6 +224,35 @@ int main() {
                             }
                             selectedFile = "";
                             selectedFileRelative = "";
+                            selectedFileType = 0;
+                            vector<FileShow> files = getFilesOnDirectory(navigation.top());
+                            XClearWindow(display, window);
+                            drawFiles(display, &window, s, files);
+                            drawButtons(display, &window, s, buttons);
+                            drawInput(display, &window, s);
+                        }
+                        //symbolic link
+                        else if(i == 6) {
+                            fo.createSymLink(selectedFile, navigation.top()+"/"+textInput);
+                            selectedFile = "";
+                            selectedFileRelative = "";
+                            textInput = "";
+                            selectedFileType = 0;
+                            vector<FileShow> files = getFilesOnDirectory(navigation.top());
+                            XClearWindow(display, window);
+                            drawFiles(display, &window, s, files);
+                            drawButtons(display, &window, s, buttons);
+                            drawInput(display, &window, s);
+                        }
+                        //hard link
+                        else if(i == 7) {
+                            //files
+                            if(selectedFileType == 8) {
+                                fo.createHardLink(selectedFile, navigation.top()+"/"+textInput);
+                            }
+                            selectedFile = "";
+                            selectedFileRelative = "";
+                            textInput = "";
                             selectedFileType = 0;
                             vector<FileShow> files = getFilesOnDirectory(navigation.top());
                             XClearWindow(display, window);

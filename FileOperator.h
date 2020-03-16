@@ -28,6 +28,8 @@ public:
     void copyRecursive(const fs::path& src, const fs::path& target) noexcept;
     void moveFile(std::string moveFrom, std::string moveTo);
     void moveFolder(std::string moveFrom, std::string moveTo);
+    void createSymLink(std::string from, std::string to);
+    void createHardLink(std::string from, std::string to);
 };
 
 #endif
